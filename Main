@@ -1,0 +1,37 @@
+import java.io.*;
+
+import javafx.application.Application;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        // ساخت یک FileChooser برای انتخاب فایل
+        FileChooser fileChooser = new FileChooser();
+
+        // تنظیمات FileChooser برای فقط نمایش فایل‌های متنی
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+
+        // باز کردن FileChooser و دریافت فایل انتخاب شده
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
+
+        if (selectedFile != null) {
+            try {
+                FileReader fileReader = new FileReader(selectedFile);
+                Download download=new Download();
+                download.downloadfile(fileReader);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
