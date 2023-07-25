@@ -1,0 +1,129 @@
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Download {
+
+    public void downloadfile(FileReader file) throws IOException {
+
+        BufferedReader bufferedReader= new BufferedReader(file);
+
+
+        ArrayList<String> urls=new ArrayList<>();
+
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] urls1 = line.split(",");
+            for (int i = 0; i <urls1.length ; i++) {
+                urls.add(Arrays.toString(urls1));
+            }
+        }
+
+
+
+
+        System.out.println(" مسیر ذخیره فایل خود را وارد کنیید:");
+        Scanner scanner = new Scanner(System.in);
+        String addres=scanner.next();
+        System.out.println("نام فایل مورد نظر را وارد کنید:");
+        String addrespach=scanner.next();
+        System.out.println("********************************************");
+        System.out.println("کلمه مورد نظر خود را برای جستجو وارد کنید:");
+        String keyword = scanner.next();
+
+
+
+        // تعیین مسیر پوشه برای ذخیره فایل‌های دانلود شده
+        String downloadFolderPath =addres;
+
+        // ساخت یک شی از کلاس File برای دایرکتوری دانلود
+        File downloadFolder = new File(downloadFolderPath);
+
+        // اگر دایرکتوری وجود نداشته باشد، آن را ایجاد کنید
+        if (!downloadFolder.exists()) {
+            downloadFolder.mkdirs();
+        }
+
+        for (String url : urls) {
+            try {
+                // باز کردن اتصال با استفاده از URL و ایجاد یک شی از کلاس URLConnection
+
+                String NewStr =url;
+                String newStr = NewStr.replace("[", "");
+                String newStr2 = newStr.replace("]", "");
+
+
+                String newstr3="http://"+newStr2+"/"+addrespach;
+
+
+                URL fileUrl = new URL(newstr3);
+
+
+
+                HttpURLConnection connection1 = (HttpURLConnection) fileUrl.openConnection();
+                connection1.setRequestMethod("HEAD");
+
+                // ارسال درخواست به سرور و بررسی کد وضعیت HTTP
+                int responseCode = connection1.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                  //  System.out.println("آدرس اینترنتی موجود است.");
+                    URLConnection connection = fileUrl.openConnection();
+                    BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
+                    FileOutputStream fileOutputStream = new FileOutputStream(downloadFolder.getPath() + File.separator + newstr3.substring(newstr3.lastIndexOf('/') + 1));
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer, 0, 1024)) != -1) {
+                        fileOutputStream.write(buffer, 0, bytesRead);
+                    }
+
+
+                    inputStream.close();
+                    fileOutputStream.close();
+
+                    System.out.println("فایل با موفقیت ذخیره شد.");
+
+                    String filePath =addres+"/"+addrespach;
+                    File file2 = new File(filePath);
+
+                    String outputFilePath =addres +"/"+"find.txt";
+
+                    Scanner scanner1 = new Scanner(file2);
+
+                    // ایجاد یک شی از کلاس FileWriter برای نوشتن در فایل خروجی
+                    FileWriter fileWriter1 = new FileWriter(outputFilePath);
+
+                    // ایجاد یک شی از کلاس BufferedWriter برای نوشتن به صورت بافرشده در فایل خروجی
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter1);
+
+                    while (scanner1.hasNextLine()) {
+                        String line1 = scanner1.nextLine();
+                        if (line1.contains(keyword)) {
+                            bufferedWriter.write(line1+"====>"+NewStr);
+                            bufferedWriter.newLine();
+                        }
+                    }
+
+                    scanner1.close();
+                    scanner.close();
+
+                    bufferedWriter.close();
+
+
+                } else {
+                    System.out.println("آدرس اینترنتی موجود نیست.");
+                }
+
+
+            } catch (IOException e) {
+                System.out.println("ادرس سایت اشتباه می باشد");
+            }
+        }
+    }
+
+}
